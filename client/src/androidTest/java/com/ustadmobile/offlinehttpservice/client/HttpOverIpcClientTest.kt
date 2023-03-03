@@ -2,10 +2,10 @@ package com.ustadmobile.offlinehttpservice.client
 
 import android.os.Bundle
 import android.os.Message
-import com.ustadmobile.httpoveripc.client.OfflineHttpClient
-import com.ustadmobile.httpoveripc.client.OfflineHttpClient.Companion.HTTP_MSG
-import com.ustadmobile.httpoveripc.client.OfflineHttpClient.Companion.KEY_REQUEST
-import com.ustadmobile.httpoveripc.client.OfflineHttpClient.Companion.KEY_RESPONSE
+import com.ustadmobile.httpoveripc.client.HttpOverIpcClient
+import com.ustadmobile.httpoveripc.core.HttpOverIpcConstants.HTTP_RESPONSE
+import com.ustadmobile.httpoveripc.core.HttpOverIpcConstants.KEY_REQUEST
+import com.ustadmobile.httpoveripc.core.HttpOverIpcConstants.KEY_RESPONSE
 import com.ustadmobile.httpoveripc.core.ext.getRawHttpRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -19,15 +19,15 @@ import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME
 
-class OfflineHttpClientTest {
+class HttpOverIpcClientTest {
 
     @Test
     fun givenMessageSent_whenReplyReceived_thenShouldReturn() {
         runBlocking(Dispatchers.Default) {
-            val sender = mock<OfflineHttpClient.Sender> {
+            val sender = mock<HttpOverIpcClient.Sender> {
 
             }
-            val offlineHttpClient = OfflineHttpClient(sender)
+            val offlineHttpClient = HttpOverIpcClient(sender)
             val rawHttp = RawHttp()
             val request = rawHttp.parseRequest(
                 "GET /hello HTTP/1.1\r\n" +
@@ -60,7 +60,7 @@ class OfflineHttpClientTest {
 
             offlineHttpClient.handler.handleMessage(
                 Message.obtain(
-                    offlineHttpClient.handler, HTTP_MSG
+                    offlineHttpClient.handler, HTTP_RESPONSE
                 ).apply {
                     data = Bundle().apply {
                         putByteArray(KEY_RESPONSE, ByteArrayOutputStream().also {

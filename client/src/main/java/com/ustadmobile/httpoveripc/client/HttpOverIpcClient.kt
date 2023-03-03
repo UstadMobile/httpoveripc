@@ -1,6 +1,9 @@
 package com.ustadmobile.httpoveripc.client
 
 import android.os.*
+import com.ustadmobile.httpoveripc.core.HttpOverIpcConstants.HTTP_MSG
+import com.ustadmobile.httpoveripc.core.HttpOverIpcConstants.KEY_REQUEST
+import com.ustadmobile.httpoveripc.core.HttpOverIpcConstants.KEY_RESPONSE
 import com.ustadmobile.httpoveripc.core.ext.getRawHttpResponse
 import com.ustadmobile.httpoveripc.core.ext.putRawHttpRequest
 import kotlinx.coroutines.*
@@ -10,7 +13,13 @@ import rawhttp.core.RawHttpRequest
 import rawhttp.core.RawHttpResponse
 import java.util.concurrent.atomic.AtomicReference
 
-class OfflineHttpClient(
+/**
+ * Client to send HTTP requests and receive a response over an IPC service.
+ *
+ * Messenger Services does not allow concurrent processing. The client will use a first in first out
+ * approach to sending requests.
+ */
+class HttpOverIpcClient internal constructor(
     serverMessenger: Sender,
 ) {
 
@@ -23,7 +32,7 @@ class OfflineHttpClient(
         fun sendMessage(message: Message)
     }
 
-    class DefaultSenderService(binder: Binder): Sender {
+    class DefaultSenderService(binder: IBinder): Sender {
         private val messenger = Messenger(binder)
 
         override fun sendMessage(message: Message) {
@@ -31,7 +40,12 @@ class OfflineHttpClient(
         }
     }
 
-    constructor(binder: Binder): this (DefaultSenderService(binder))
+    /**
+     * Create a new HttpOverIpcClient that will use a service binding.
+     *
+     * @param binder IBinder that is received from binding to a service (e.g. a service that implements AbstractHttpOverIpcServer)
+     */
+    constructor(binder: IBinder): this (DefaultSenderService(binder))
 
     data class PendingRequest(
         val request: RawHttpRequest,
@@ -81,6 +95,11 @@ class OfflineHttpClient(
         }
     }
 
+    /**
+     * Send an http request to the server
+     *
+     * @param request http request to send
+     */
     @Suppress("SpellCheckingInspection")
     suspend fun send(request: RawHttpRequest): RawHttpResponse<*> {
         val completeable = CompletableDeferred<RawHttpResponse<*>>()
@@ -98,10 +117,6 @@ class OfflineHttpClient(
 
     companion object {
 
-        const val HTTP_MSG = 42
 
-        const val KEY_REQUEST = "request"
-
-        const val KEY_RESPONSE = "response"
     }
 }

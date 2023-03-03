@@ -16,3 +16,4 @@ rootProject.name = "HttpOverAndroidIpc"
 include ':app'
 include ':client'
 include ':core'
+include ':server'
