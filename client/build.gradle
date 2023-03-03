@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace 'com.ustadmobile.client'
+    namespace 'com.ustadmobile.httpoveripc.client'
     compileSdk 33
 
     defaultConfig {

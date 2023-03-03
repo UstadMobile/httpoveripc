@@ -1,4 +1,4 @@
-package com.ustadmobile.offlinehttpservice.client
+package com.ustadmobile.httpoveripc.client
 
 import android.os.Bundle
 import rawhttp.core.RawHttp
