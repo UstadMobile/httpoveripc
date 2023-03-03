@@ -2,9 +2,11 @@ package com.ustadmobile.offlinehttpservice.client
 
 import android.os.Bundle
 import android.os.Message
-import com.ustadmobile.offlinehttpservice.client.OfflineHttpClient.Companion.HTTP_MSG
-import com.ustadmobile.offlinehttpservice.client.OfflineHttpClient.Companion.KEY_REQUEST
-import com.ustadmobile.offlinehttpservice.client.OfflineHttpClient.Companion.KEY_RESPONSE
+import com.ustadmobile.httpoveripc.client.OfflineHttpClient
+import com.ustadmobile.httpoveripc.client.OfflineHttpClient.Companion.HTTP_MSG
+import com.ustadmobile.httpoveripc.client.OfflineHttpClient.Companion.KEY_REQUEST
+import com.ustadmobile.httpoveripc.client.OfflineHttpClient.Companion.KEY_RESPONSE
+import com.ustadmobile.httpoveripc.core.ext.getRawHttpRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking

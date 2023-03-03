@@ -1,6 +1,8 @@
 package com.ustadmobile.httpoveripc.client
 
 import android.os.*
+import com.ustadmobile.httpoveripc.core.ext.getRawHttpResponse
+import com.ustadmobile.httpoveripc.core.ext.putRawHttpRequest
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import rawhttp.core.RawHttp

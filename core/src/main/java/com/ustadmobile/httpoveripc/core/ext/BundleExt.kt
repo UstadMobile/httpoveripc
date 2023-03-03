@@ -1,4 +1,4 @@
-package com.ustadmobile.httpoveripc.client
+package com.ustadmobile.httpoveripc.core.ext
 
 import android.os.Bundle
 import rawhttp.core.RawHttp
