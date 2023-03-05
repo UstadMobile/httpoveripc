@@ -1,10 +1,12 @@
+//commented out because Jitpack.
 pluginManagement {
     repositories {
-        google()
         mavenCentral()
         gradlePluginPortal()
+        google()
     }
 }
+//commented out because Jitpack.
 //dependencyResolutionManagement {
 //    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
 //    repositories {
