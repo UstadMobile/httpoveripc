@@ -6,7 +6,15 @@ plugins {
 }
 
 group = "com.github.UstadMobile.httpoveripc"
-version = "0.0.1a"
+version = "0.0.1c"
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        mavenLocal()
+    }
+}
 
 ext {
 
