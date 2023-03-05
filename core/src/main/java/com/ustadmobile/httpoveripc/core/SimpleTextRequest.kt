@@ -4,6 +4,10 @@ import rawhttp.core.RawHttp
 import rawhttp.core.RawHttpRequest
 import java.net.URLEncoder
 
+/**
+ * This represents a simple text http request. It is deliberately simplified (e.g. duplicate headers
+ * and query params are not allowed). Query param key names and values will be url encoded.
+ */
 data class SimpleTextRequest(
     val method: Method,
     val protocol: String,
@@ -45,6 +49,4 @@ data class SimpleTextRequest(
                     (requestBody ?: "")
         )
     }
-
-
 }
