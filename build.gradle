@@ -5,6 +5,8 @@ plugins {
     id 'org.jetbrains.kotlin.android' version '1.7.21' apply false
 }
 
+group = "com.github.UstadMobile.httpoveripc"
+version = "0.0.1a"
 
 ext {
 
@@ -14,7 +16,12 @@ ext {
     version_android_desugar = "2.0.2"
     version_kotlin_mockito = "4.1.0"
 
+    version_android_core = "1.7.0"
+    version_android_appcompat = "1.6.1"
+
     version_androidx_test_rules = "1.5.0"
     version_androidx_test_runner = "1.5.2"
+    version_androidx_test_junit = "1.1.5"
+    version_junit = "4.13.2"
 }
 
