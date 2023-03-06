@@ -22,7 +22,11 @@ data class SimpleTextRequest(
 
     fun toRawHttpRequest(rawHttp: RawHttp): RawHttpRequest {
         val allHeaders = headers.toMutableMap()
-        allHeaders["Host"] = url.host
+        allHeaders["Host"] = if(url.specifiedPort > 0) {
+            url.hostWithPort
+        }else {
+            url.host
+        }
         val contentBytes = requestBody?.encodeToByteArray()
         if(contentBytes != null){
             allHeaders["Content-Length"] = contentBytes.size.toString()
