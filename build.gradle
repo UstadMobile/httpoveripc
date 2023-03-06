@@ -20,6 +20,8 @@ ext {
     version_android_core = "1.7.0"
     version_android_appcompat = "1.6.1"
 
+    version_ktor = "2.1.2"
+
     version_androidx_test_rules = "1.5.0"
     version_androidx_test_runner = "1.5.2"
     version_androidx_test_junit = "1.1.5"

@@ -1,8 +1,8 @@
 package com.ustadmobile.httpoveripc.core
 
+import io.ktor.http.*
 import rawhttp.core.RawHttp
 import rawhttp.core.RawHttpRequest
-import java.net.URLEncoder
 
 /**
  * This represents a simple text http request. It is deliberately simplified (e.g. duplicate headers
@@ -10,10 +10,7 @@ import java.net.URLEncoder
  */
 data class SimpleTextRequest(
     val method: Method,
-    val protocol: String,
-    val host: String,
-    val path: String,
-    val queryParams: Map<String, String>,
+    val url: Url,
     val headers: Map<String, String>,
     val requestBody: String? = null,
 ) {
@@ -24,23 +21,15 @@ data class SimpleTextRequest(
     }
 
     fun toRawHttpRequest(rawHttp: RawHttp): RawHttpRequest {
-        val searchSuffix = if(queryParams.isNotEmpty()) {
-            "?" + queryParams.entries.joinToString(separator = "&") { entry ->
-                "${URLEncoder.encode(entry.key, "UTF-8")}=${URLEncoder.encode(entry.value, "UTF-8")}"
-            }
-        }else {
-            ""
-        }
-
         val allHeaders = headers.toMutableMap()
-        allHeaders["Host"] = host
+        allHeaders["Host"] = url.host
         val contentBytes = requestBody?.encodeToByteArray()
         if(contentBytes != null){
             allHeaders["Content-Length"] = contentBytes.size.toString()
         }
 
         return rawHttp.parseRequest(
-            "${method.name} $path$searchSuffix HTTP/1.1\r\n" +
+            "${method.name} ${url.encodedPathAndQuery} HTTP/1.1\r\n" +
                     allHeaders.entries.joinToString(separator = "\r\n") { header ->
                         "${header.key}: ${header.value}"
                     } +

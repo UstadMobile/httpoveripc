@@ -18,11 +18,11 @@ class RawHttpRequestExtTest {
                     "Accept: application/json")
 
         val simpleRequest = rawHttpRequest.asSimpleTextRequest()
-        Assert.assertEquals("Path matches", "/hello", simpleRequest.path)
+        Assert.assertEquals("Path matches", "/hello", simpleRequest.url.encodedPath)
         Assert.assertEquals("Param matches", "value",
-            simpleRequest.queryParams["param"])
+            simpleRequest.url.parameters["param"])
         Assert.assertEquals("Host matches", "headers.jsontest.com",
-            simpleRequest.host)
+            simpleRequest.url.host)
         Assert.assertEquals("Method matches", SimpleTextRequest.Method.GET,
             simpleRequest.method)
     }

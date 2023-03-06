@@ -54,6 +54,7 @@ dependencies {
     androidTestImplementation "org.mockito.kotlin:mockito-kotlin:$version_kotlin_mockito"
 
     androidTestImplementation "androidx.test.ext:junit:$version_androidx_test_junit"
+    androidTestImplementation "androidx.test:runner:$version_androidx_test_runner"
 }
 
 publishing {
