@@ -9,11 +9,20 @@ import java.time.format.DateTimeFormatter
 
 class EchoHttpOverIpcServer: AbstractHttpOverIpcServer() {
 
-    val rawHttp = RawHttp()
+    private val rawHttp = RawHttp()
 
     override fun handleRequest(request: RawHttpRequest): RawHttpResponse<*> {
         val dateString = DateTimeFormatter.RFC_1123_DATE_TIME.format(ZonedDateTime.now(ZoneOffset.UTC))
-        val body = request.uri.toString()
+        val bodyContentLen = request.headers["content-length"]?.firstOrNull()?.toLong()
+        val requestBody = if(bodyContentLen != null) {
+            request.body.get().decodeBodyToString(Charsets.UTF_8)
+        }else {
+            ""
+        }
+
+        val body = request.uri.toString() + requestBody
+
+
         val response = rawHttp.parseResponse(
             "HTTP/1.1 200 OK\r\n" +
                     "Content-Type: plain/text\r\n" +

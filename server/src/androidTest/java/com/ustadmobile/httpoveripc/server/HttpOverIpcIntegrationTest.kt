@@ -5,6 +5,10 @@ import android.os.IBinder
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.rule.ServiceTestRule
 import com.ustadmobile.httpoveripc.client.HttpOverIpcClient
+import com.ustadmobile.httpoveripc.client.HttpOverIpcProxy
+import io.ktor.client.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import kotlinx.coroutines.*
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -69,6 +73,60 @@ class HttpOverIpcIntegrationTest {
 
             awaitAll(*requests.toTypedArray())
         }
+        client.close()
+    }
+
+    @Test
+    fun givenValidService_whenClientSendsGetRequestUsingHttpProxy_thenCanGetResponseFromSErver() {
+        val rawHttp = RawHttp()
+        val serviceIntent = Intent(
+            ApplicationProvider.getApplicationContext(),
+            EchoHttpOverIpcServer::class.java
+        )
+
+        val binder: IBinder = serviceRule.bindService(serviceIntent)
+        val ipcClient = HttpOverIpcClient(binder)
+        val proxyServer = HttpOverIpcProxy(ipcClient, rawHttp, port = 0)
+        proxyServer.start()
+
+        val httpClient = HttpClient()
+        val httpResponse = runBlocking {
+            httpClient.get("http://localhost:${proxyServer.listeningPort}/helloHttp?param=value") {
+                header("ipc-host", "localhost:8087")
+            }
+        }
+        val body = runBlocking { httpResponse.bodyAsText() }
+
+        assertEquals("http://localhost:8087/helloHttp?param=value", body)
+
+        proxyServer.stop()
+        ipcClient.close()
+    }
+
+    @Test
+    fun givenValidService_whenCLientSendPostRequestWithBody_thenCanGetResponseFromServer() {
+        val rawHttp = RawHttp()
+        val serviceIntent = Intent(
+            ApplicationProvider.getApplicationContext(),
+            EchoHttpOverIpcServer::class.java
+        )
+
+        val binder: IBinder = serviceRule.bindService(serviceIntent)
+        val ipcClient = HttpOverIpcClient(binder)
+        val proxyServer = HttpOverIpcProxy(ipcClient, rawHttp, port = 0)
+        proxyServer.start()
+
+        val httpClient = HttpClient()
+        val httpResponse = runBlocking {
+            httpClient.post("http://localhost:${proxyServer.listeningPort}/helloHttp?param=value") {
+                header("ipc-host", "localhost:8087")
+                header("Content-type", "text/plain")
+                setBody("Body Content")
+            }
+        }
+        val body = runBlocking { httpResponse.bodyAsText() }
+        assertTrue(body.startsWith("http://localhost:8087/helloHttp?param=value"))
+        assertTrue(body.endsWith("Body Content"))
     }
 
 }

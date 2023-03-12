@@ -32,7 +32,7 @@ class HttpOverIpcClient internal constructor(
         fun sendMessage(message: Message)
     }
 
-    class DefaultSenderService(binder: IBinder): Sender {
+    private class DefaultSenderService(binder: IBinder): Sender {
         private val messenger = Messenger(binder)
 
         override fun sendMessage(message: Message) {
@@ -115,8 +115,4 @@ class HttpOverIpcClient internal constructor(
         handlerThread.quit()
     }
 
-    companion object {
-
-
-    }
 }

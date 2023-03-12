@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <application>
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!--
+    Clear text traffic is required to use the proxy
+    -->
+    <application
+        android:usesCleartextTraffic="true"
+        >
         <service
             android:name="com.ustadmobile.httpoveripc.server.EchoHttpOverIpcServer"
             android:exported="true"/>

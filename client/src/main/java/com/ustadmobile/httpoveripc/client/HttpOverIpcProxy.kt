@@ -5,9 +5,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import rawhttp.core.RawHttp
 import java.io.ByteArrayInputStream
-import java.io.IOException
 import java.io.InputStream
-import java.io.SequenceInputStream
 
 /**
  * This proxy server can receive http requests and pass them over the IPC bridge using the
@@ -17,44 +15,30 @@ import java.io.SequenceInputStream
  * Clients need to add an "ipc-host" header to indicate the "real" host header that should be set
  * when the request is forwarded.
  *
+ * @param httpOverIpcClient The HttpOverIpcClient that will be used to send requests
+ * @param rawHttp RawHTTP instance used to parse/encode http requests
+ * @param timeout the maximum time to allow for a response to be received before responding with an internal server error
+ * @param hostName if not null, the hostname on which to bind as per NanoHTTPD param
+ * @param port: if 0, then auto allocate, otherwise, try the specific port. As per NanoHTTPD param.
  */
 class HttpOverIpcProxy(
     private val httpOverIpcClient: IHttpOverIpcClient,
     private val rawHttp: RawHttp,
     private val timeout: Long = 5000,
     hostName: String? = null,
-    port: Int
+    port: Int = 0,
 ) : NanoHTTPD(hostName, port) {
 
     override fun serve(session: IHTTPSession): Response {
-        val realHost = session.headers["ipc-host"] ?: session.headers["host"]
-            ?: return newFixedLengthResponse(Response.Status.BAD_REQUEST, "text/plain", "Bad request: No Host Header")
-        val requestStart = "${session.method.name} ${session.uri} HTTP/1.1\r\n" +
-                "Host: $realHost\r\n" +
-                session.headers.entries.filter { it.key != "host" }.joinToString(separator = "") {
-                    "${it.key}: ${it.value}\r\n"
-                } +
-                "\r\n"
-
-
-        var requestBodyInputStream: InputStream? = null
         try {
-            requestBodyInputStream = session.inputStream
-            val requestStartInputStream = ByteArrayInputStream(requestStart.encodeToByteArray())
-            val parseInputStream = if(requestBodyInputStream != null){
-                SequenceInputStream(requestStartInputStream, requestBodyInputStream)
-            }else {
-                requestStartInputStream
-            }
-
-            val rawHttpRequest = rawHttp.parseRequest(parseInputStream)
+            val rawHttpRequest = session.toRawRequest(rawHttp)
             val rawHttpResponse = runBlocking {
                 withTimeout(timeMillis = timeout) {
                     httpOverIpcClient.send(rawHttpRequest)
                 }
             }
 
-            var contentLength = rawHttpRequest.headers["content-length"].firstOrNull()?.toInt()
+            var contentLength = rawHttpResponse.headers["content-length"].firstOrNull()?.toInt()
             val responseInputStream: InputStream
             if(contentLength != null && contentLength > 0) {
                 responseInputStream = rawHttpResponse.body.get().asRawStream()
@@ -82,12 +66,9 @@ class HttpOverIpcProxy(
                 }
             }
 
-        }catch(e: IOException) {
+        }catch(e: Exception) {
             return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, "text/plain",
                 "Exception: $e")
-        }finally {
-            requestBodyInputStream?.close()
         }
-
     }
 }
