@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicReference
  */
 class HttpOverIpcClient internal constructor(
     serverMessenger: Sender,
-) {
+) : IHttpOverIpcClient {
 
     private val handlerThread = HandlerThread("background").also {
         if(!it.isAlive)
@@ -101,7 +101,7 @@ class HttpOverIpcClient internal constructor(
      * @param request http request to send
      */
     @Suppress("SpellCheckingInspection")
-    suspend fun send(request: RawHttpRequest): RawHttpResponse<*> {
+    override suspend fun send(request: RawHttpRequest): RawHttpResponse<*> {
         val completeable = CompletableDeferred<RawHttpResponse<*>>()
         val pendingRequest = PendingRequest(request, completeable)
         channel.send(pendingRequest)

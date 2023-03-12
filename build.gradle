@@ -16,6 +16,7 @@ ext {
     version_android_mockito = "4.8.0"
     version_android_desugar = "2.0.2"
     version_kotlin_mockito = "4.1.0"
+    version_nanohttpd = "2.3.1"
 
     version_android_core = "1.7.0"
     version_android_appcompat = "1.6.1"
