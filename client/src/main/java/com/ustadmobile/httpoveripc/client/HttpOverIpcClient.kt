@@ -52,7 +52,7 @@ class HttpOverIpcClient internal constructor(
         val completableDeferred: CompletableDeferred<RawHttpResponse<*>>,
     )
 
-    private val coroutineScope = CoroutineScope(Dispatchers.Main + Job())
+    private val coroutineScope = CoroutineScope(Dispatchers.Default + Job())
 
     private val rawHttp = RawHttp()
 
