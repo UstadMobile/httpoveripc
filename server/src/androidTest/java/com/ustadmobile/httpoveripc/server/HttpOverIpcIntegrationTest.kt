@@ -91,13 +91,11 @@ class HttpOverIpcIntegrationTest {
 
         val httpClient = HttpClient()
         val httpResponse = runBlocking {
-            httpClient.get("http://localhost:${proxyServer.listeningPort}/helloHttp?param=value") {
-                header("ipc-host", "localhost:8087")
-            }
+            httpClient.get("http://localhost:${proxyServer.listeningPort}/helloHttp?param=value")
         }
         val body = runBlocking { httpResponse.bodyAsText() }
 
-        assertEquals("http://localhost:8087/helloHttp?param=value", body)
+        assertEquals("http://localhost:${proxyServer.listeningPort}/helloHttp?param=value", body)
 
         proxyServer.stop()
         ipcClient.close()
@@ -119,13 +117,12 @@ class HttpOverIpcIntegrationTest {
         val httpClient = HttpClient()
         val httpResponse = runBlocking {
             httpClient.post("http://localhost:${proxyServer.listeningPort}/helloHttp?param=value") {
-                header("ipc-host", "localhost:8087")
                 header("Content-type", "text/plain")
                 setBody("Body Content")
             }
         }
         val body = runBlocking { httpResponse.bodyAsText() }
-        assertTrue(body.startsWith("http://localhost:8087/helloHttp?param=value"))
+        assertTrue(body.startsWith("http://localhost:${proxyServer.listeningPort}/helloHttp?param=value"))
         assertTrue(body.endsWith("Body Content"))
     }
 

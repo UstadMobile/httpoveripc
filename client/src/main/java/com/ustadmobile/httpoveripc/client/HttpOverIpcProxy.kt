@@ -15,8 +15,8 @@ import java.util.*
  * HttpOverIpcClient. This allows clients to interact with a REST service provided by another app
  * on the device via http in (almost) the same way as connecting over the Internet.
  *
- * Clients need to add an "ipc-host" header to indicate the "real" host header that should be set
- * when the request is forwarded.
+ * Clients must add a Forwarded header if they want the receiver to know the original protocol and
+ * host (e.g. proto and host)
  *
  * @param httpOverIpcClient The HttpOverIpcClient that will be used to send requests
  * @param rawHttp RawHTTP instance used to parse/encode http requests
@@ -54,11 +54,6 @@ class HttpOverIpcProxy(
             try {
                 val proxyRequest = request.withHeaders(
                     RawHttpHeaders.newBuilder(request.headers)
-                        .apply {
-                            val ipcHost = request.headers["ipc-host"].firstOrNull()
-                            if(ipcHost != null)
-                                overwrite("host", ipcHost)
-                        }
                         .build()
                 )
 
