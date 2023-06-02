@@ -35,7 +35,7 @@ class AbstractHttpOverIpcServiceTest {
     val serviceRule = ServiceTestRule()
 
     @Test
-    fun useAppContext() {
+    fun givenWorkingHandler_whenRawRequestMessageSent_thenShouldGetReply() {
         val rawHttp = RawHttp()
         val serviceIntent = Intent(
             ApplicationProvider.getApplicationContext(),
@@ -80,4 +80,48 @@ class AbstractHttpOverIpcServiceTest {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
         assertEquals("com.ustadmobile.httpoveripc.server.test", appContext.packageName)
     }
+
+    @Test
+    fun givenHandlerThrowsException_whenRawRequestMessageSent_thenShouldReplyHttp500() {
+        val rawHttp = RawHttp()
+        val serviceIntent = Intent(
+            ApplicationProvider.getApplicationContext(),
+            ThrowExceptionHttpOverIpcServer::class.java
+        )
+
+        val binder: IBinder = serviceRule.bindService(serviceIntent)
+        val service = Messenger(binder)
+
+        val completeableDeffered = CompletableDeferred<RawHttpResponse<*>>()
+        val incomingHandler = object: Handler(Looper.getMainLooper()) {
+            override fun handleMessage(msg: Message) {
+                super.handleMessage(msg)
+                val reply = msg.data.getRawHttpResponse(KEY_RESPONSE, rawHttp)
+                completeableDeffered.complete(reply)
+            }
+        }
+
+        val incomingMessenger = Messenger(incomingHandler)
+
+        service.send(Message.obtain(null, HTTP_REQUEST).also {
+            it.replyTo = incomingMessenger
+
+            val request = rawHttp.parseRequest(
+                "GET /hello HTTP/1.1\r\n" +
+                        "Host: headers.jsontest.com\r\n" +
+                        "User-Agent: RawHTTP\r\n" +
+                        "Accept: application/json")
+            it.data.putRawHttpRequest(KEY_REQUEST, request)
+        })
+
+        val response = runBlocking {
+            withTimeout(5000) {
+                completeableDeffered.await()
+            }
+        }
+
+        assertNotNull(response)
+        assertEquals(500, response.statusCode)
+    }
+
 }

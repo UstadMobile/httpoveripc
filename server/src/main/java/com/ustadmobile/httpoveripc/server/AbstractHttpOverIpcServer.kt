@@ -3,6 +3,7 @@ package com.ustadmobile.httpoveripc.server
 import android.app.Service
 import android.content.Intent
 import android.os.*
+import android.util.Log
 import com.ustadmobile.httpoveripc.core.HttpOverIpcConstants.HTTP_RESPONSE
 import com.ustadmobile.httpoveripc.core.HttpOverIpcConstants.KEY_REQUEST
 import com.ustadmobile.httpoveripc.core.HttpOverIpcConstants.KEY_RESPONSE
@@ -11,6 +12,7 @@ import com.ustadmobile.httpoveripc.core.ext.putRawHttpResponse
 import rawhttp.core.RawHttp
 import rawhttp.core.RawHttpRequest
 import rawhttp.core.RawHttpResponse
+import rawhttp.core.body.StringBody
 
 /**
  * Abstract class for use implementing a server for HTTP requests coming in over IPC. These could be
@@ -32,14 +34,26 @@ abstract class AbstractHttpOverIpcServer: Service() {
         looper: Looper,
     ) : Handler(looper) {
         override fun handleMessage(msg: Message) {
-            val incomingRequest = msg.data.getRawHttpRequest(KEY_REQUEST, rawHttp)
-            val response = handleRequest(incomingRequest)
+            var requestUri: String? = null
+            val response = try {
+                val incomingRequest = msg.data.getRawHttpRequest(KEY_REQUEST, rawHttp)
+                requestUri = incomingRequest.uri.toString()
+                handleRequest(incomingRequest)
+            }catch(e: Exception) {
+                rawHttp.parseResponse("HTTP/1.1 500 Internal Server Error\n" +
+                        "Content-Type: text/plain\n" +
+                        "\n"
+                ).withBody(StringBody(e.stackTraceToString())).also {
+                    Log.e("HttpOverIpcServer", "HttpOverIpc: uri=$requestUri exception: $e")
+                }
+            }
             val replyMessage = Message.obtain(this@IncomingHandler, HTTP_RESPONSE)
             replyMessage.data.putRawHttpResponse(KEY_RESPONSE, response)
 
             try {
                 msg.replyTo.send(replyMessage)
             }catch(e: RemoteException) {
+                Log.e("HttpOverIpcServer", "HttpOverIpc: could not send ReplyMessage to remote: $e")
                 e.printStackTrace()
             }
         }
