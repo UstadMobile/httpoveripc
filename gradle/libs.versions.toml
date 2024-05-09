@@ -1,15 +1,15 @@
 [versions]
 
-androidx-core = "1.7.0"
+androidx-core = "1.13.1"
 androidx-appcompat = "1.6.1"
-material = "1.8.0"
+material = "1.12.0"
 junit = "4.13.2"
-rawhttp = "2.5.2"
-android-desugar = "2.0.2"
-mockito-android = "4.1.0"
+rawhttp = "2.6.0"
+android-desugar = "2.0.4"
+mockito-android = "5.1.0"
 androidx-test-runner = "1.5.2"
 androidx-test-ext-junit = "1.1.5"
-ktor = "2.1.2"
+ktor = "2.3.9"
 androidx-test-rules = "1.5.0"
 
 [libraries]
