@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.github.UstadMobile.httpoveripc"
-version = "0.0.1o"
+version = "0.0.2"
 
 ext {
 
